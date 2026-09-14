@@ -1,0 +1,188 @@
+<Window x:Class="TopMediaBar.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Top Media Bar"
+        WindowStartupLocation="Manual"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+
+        <SolidColorBrush x:Key="AccentBrush" Color="#4A9EFF"/>
+
+        <Style x:Key="IconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" CornerRadius="12" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#33FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Thicker, accent-colored progress bar with a near-invisible thumb, matching a
+             clean "now playing" widget look rather than a standard OS slider. -->
+        <Style x:Key="AccentSliderStyle" TargetType="Slider">
+            <Setter Property="Height" Value="20"/>
+            <!-- A single click anywhere on the track jumps the thumb straight there, instead of
+                 nudging by the default LargeChange (=1 out of 100) — without this a click barely
+                 moves the value and reads as "the slider doesn't work". -->
+            <Setter Property="IsMoveToPointEnabled" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid Background="Transparent" VerticalAlignment="Stretch">
+                            <!-- Both rails meet the center of the 18-DIP thumb hit area. -->
+                            <Border Height="5" Margin="9,0" Background="#33FFFFFF" CornerRadius="2.5" VerticalAlignment="Center"/>
+                            <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}"
+                                   Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate>
+                                                <Grid Background="Transparent">
+                                                    <Border Height="5" Margin="9,0,-9,0" Background="{StaticResource AccentBrush}" CornerRadius="2.5" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Opacity="0">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate>
+                                                <Border Background="Transparent"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <!-- Visible dot stays 8x8, but the Thumb's own hit-box is 18x18
+                                         so it's actually easy to grab and drag with a mouse. -->
+                                    <Thumb Width="18" Height="18">
+                                        <Thumb.Template>
+                                            <ControlTemplate>
+                                                <Grid Background="Transparent">
+                                                    <Ellipse Width="8" Height="8" Fill="White"
+                                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <!-- Concave shoulders connect the card to the top edge of the screen. -->
+        <Grid x:Name="PopupSurface" VerticalAlignment="Top" HorizontalAlignment="Center"
+              Opacity="0" RenderTransformOrigin="0.5,0">
+            <Grid.RenderTransform>
+                <ScaleTransform ScaleY="0.97"/>
+            </Grid.RenderTransform>
+            <Grid.Effect>
+                <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.5" Color="Black" Direction="270"/>
+            </Grid.Effect>
+            <Path Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top"
+                  Margin="-16,0,0,0" Fill="#F2121212" IsHitTestVisible="False"
+                  Data="M0,0 C8.84,0 16,7.16 16,16 L16,0 Z"/>
+            <Path Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top"
+                  Margin="0,0,-16,0" Fill="#F2121212" IsHitTestVisible="False"
+                  Data="M16,0 C7.16,0 0,7.16 0,16 L0,0 Z"/>
+        <Border x:Name="Bar" VerticalAlignment="Top"
+                CornerRadius="0,0,16,16"
+                Background="#F2121212"
+                Padding="8">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Width="60" Height="60" CornerRadius="10"
+                        Background="#3A3A3C" ClipToBounds="True" VerticalAlignment="Center">
+                    <Image x:Name="AlbumArt" Stretch="UniformToFill"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+
+                    <TextBlock x:Name="TitleText" Text="ไม่มีสื่อกำลังเล่น" Foreground="White"
+                               FontSize="12" FontWeight="Bold" MaxWidth="170" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock x:Name="ArtistText" Foreground="{StaticResource AccentBrush}"
+                               FontSize="10" FontWeight="SemiBold" Margin="0,1,0,0" MaxWidth="170" TextTrimming="CharacterEllipsis"/>
+
+                    <Slider x:Name="ProgressSlider" Minimum="0" Maximum="100"
+                            IsEnabled="False" Margin="0,4,0,0"
+                            Thumb.DragStarted="ProgressSlider_DragStarted"
+                            Thumb.DragCompleted="ProgressSlider_DragCompleted"
+                            ValueChanged="ProgressSlider_ValueChanged"
+                            Style="{StaticResource AccentSliderStyle}"/>
+
+                    <Grid Margin="0,0,0,0">
+                        <TextBlock x:Name="ElapsedText" Text="0:00" Foreground="{StaticResource AccentBrush}"
+                                   FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="DurationText" Text="0:00" Foreground="{StaticResource AccentBrush}"
+                                   FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
+                        <Button x:Name="PrevButton" Click="PrevButton_Click" Style="{StaticResource IconButtonStyle}">
+                            <TextBlock Text="&#xE892;" FontFamily="Segoe MDL2 Assets" FontSize="11"/>
+                        </Button>
+                        <Button x:Name="PlayPauseButton" Click="PlayPauseButton_Click" Style="{StaticResource IconButtonStyle}" Margin="3,0">
+                            <TextBlock x:Name="PlayPauseIcon" Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="13"/>
+                        </Button>
+                        <Button x:Name="NextButton" Click="NextButton_Click" Style="{StaticResource IconButtonStyle}">
+                            <TextBlock Text="&#xE893;" FontFamily="Segoe MDL2 Assets" FontSize="11"/>
+                        </Button>
+                    </StackPanel>
+
+                    <Grid Margin="0,3,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="MuteButton" Click="MuteButton_Click" ToolTip="ปิด/เปิดเสียงระบบ"
+                                Style="{StaticResource IconButtonStyle}">
+                            <TextBlock x:Name="VolumeIcon" Text="&#xE995;" FontFamily="Segoe MDL2 Assets"
+                                       Foreground="{StaticResource AccentBrush}" FontSize="12"/>
+                        </Button>
+                        <Slider x:Name="VolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" Margin="6,0,0,0"
+                                ToolTip="ระดับเสียงระบบ" SmallChange="1" LargeChange="5"
+                                ValueChanged="VolumeSlider_ValueChanged"
+                                Style="{StaticResource AccentSliderStyle}"/>
+                    </Grid>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+        </Grid>
+    </Grid>
+</Window>

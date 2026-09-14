@@ -1,0 +1,16 @@
+## .NET build output
+bin/
+obj/
+
+## Published/packaged builds
+dist/
+*.zip
+
+## User-specific / IDE
+.vs/
+*.user
+
+## Claude Code tooling (skills, not app source)
+.agents/
+.claude/
+skills-lock.json

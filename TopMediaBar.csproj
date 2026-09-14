@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <AssemblyName>TopMediaBar</AssemblyName>
+    <RootNamespace>TopMediaBar</RootNamespace>
+
+    <!-- dotnet publish produces a self-contained TopMediaBar.exe (no separate .NET install needed)
+         alongside its dependency DLLs in the publish folder — PublishSingleFile is deliberately
+         OFF: this machine's Application Control Policy blocks the single-file host's self-extraction
+         to %TEMP%\.net\..., no matter which folder the exe itself lives in or is redirected to. -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="tests\**\*.cs" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+</Project>
