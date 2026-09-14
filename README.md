@@ -1,66 +1,68 @@
 # TopMediaBar
 
-A macOS-notch-style media bar for Windows. It hides at the very top edge of the
-primary screen and slides down when you move the cursor near the top, showing
-the current track (title, artist, artwork), transport controls, a seekable
-progress bar, and per-app volume — then slides away again and shows a brief
-"now playing" toast on track changes.
+แถบสื่อสไตล์ notch ของ macOS สำหรับ Windows ตัวแถบจะซ่อนอยู่ที่ขอบบนสุดของหน้าจอหลัก
+แล้วเลื่อนลงมาเมื่อเอาเมาส์เข้าใกล้ขอบบน แสดงเพลง/วิดีโอที่กำลังเล่น (ชื่อเพลง ศิลปิน
+ปก) ปุ่มควบคุมการเล่น แถบเลื่อนตำแหน่งเพลง และระดับเสียงเฉพาะแอปนั้น ๆ — จากนั้นจะ
+เลื่อนกลับขึ้นไปซ่อนเมื่อเมาส์ออก พร้อมมี toast แจ้งเมื่อเปลี่ยนเพลง
 
-## How it works
+## ดาวน์โหลดแล้วรันได้เลย (ไม่ต้อง compile)
 
-- **Now playing / transport** — reads and controls playback through the
-  Windows System Media Transport Controls (SMTC), so it follows whatever app
-  currently owns the system media session (Spotify, browsers, etc.).
-- **Volume** — controls the volume of the specific app session that owns the
-  active media (via NAudio's Core Audio API), not the system master volume.
-- **Reveal/hide** — polls the real screen cursor position (rather than WPF's
-  hit-testing) to avoid flicker/bounce near the screen edge, and shows the
-  bar with a short animated slide.
-- **Toast** — flashes a small artwork + title/artist toast on track changes
-  when the bar itself isn't already expanded.
+โหลดไฟล์ [`TopMediaBar-win-x64.zip`](TopMediaBar-win-x64.zip) แตกไฟล์ แล้วรัน
+`TopMediaBar.exe` ได้ทันที — เป็น self-contained build ไม่ต้องติดตั้ง .NET เพิ่ม
+(ต้องใช้ Windows 10 1903+ หรือ Windows 11)
 
-## Requirements
+## หลักการทำงาน
+
+- **Now playing / ปุ่มควบคุม** — อ่านและควบคุมการเล่นผ่าน Windows System Media
+  Transport Controls (SMTC) จึงตามแอปที่กำลังครองสิทธิ์ session สื่อของระบบอยู่
+  (Spotify, เบราว์เซอร์ ฯลฯ)
+- **ระดับเสียง** — ควบคุมระดับเสียงของ session แอปที่เป็นเจ้าของสื่อที่กำลังเล่นอยู่
+  (ผ่าน Core Audio API ของ NAudio) ไม่ใช่ระดับเสียงหลักของระบบ
+- **แสดง/ซ่อนแถบ** — ตรวจตำแหน่งเคอร์เซอร์จริงบนจอ (ไม่ใช้ hit-testing ของ WPF)
+  เพื่อลดอาการกระพริบ/เด้งใกล้ขอบจอ แล้วเลื่อนแถบลงมาด้วยอนิเมชันสั้น ๆ
+- **Toast** — โผล่ toast เล็ก ๆ แสดงปกและชื่อเพลง/ศิลปินเมื่อเปลี่ยนเพลง ถ้าแถบหลัก
+  ยังไม่ได้กางอยู่
+
+## ความต้องการของระบบ (สำหรับ build เอง)
 
 - Windows 10 (1903+) / Windows 11
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
-## Run
+## รันจากซอร์สโค้ด
 
 ```powershell
 dotnet run --project TopMediaBar.csproj
 ```
 
-A tray icon is added on startup; use its context menu to quit the app.
+เมื่อเปิดแอปจะมี tray icon ขึ้นมา คลิกขวาที่ icon เพื่อออกจากโปรแกรม
 
-## Build a distributable
+## Build ไฟล์แจกจ่าย
 
 ```powershell
 dotnet publish TopMediaBar.csproj -c Release
 ```
 
-This produces a self-contained `TopMediaBar.exe` (no separate .NET runtime
-install required) plus its dependency DLLs under `bin/Release/net8.0-windows*/win-x64/publish/`.
-`PublishSingleFile` is intentionally left off — see the comment in
-`TopMediaBar.csproj` for why.
+จะได้ `TopMediaBar.exe` แบบ self-contained (ไม่ต้องติดตั้ง .NET runtime แยก)
+พร้อม DLL ที่จำเป็นอยู่ใน `bin/Release/net8.0-windows*/win-x64/publish/`
+ตั้งใจปิด `PublishSingleFile` ไว้ — ดูเหตุผลในคอมเมนต์ของ `TopMediaBar.csproj`
 
-## Tests
+## การทดสอบ
 
-Regression checks live under [`tests/`](tests/README.md):
+ชุด regression test อยู่ใน [`tests/`](tests/README.md):
 
 ```powershell
 dotnet run --project tests/TopMediaBar.RegressionTests.csproj -c Release
 ```
 
-See `tests/README.md` for optional `--audio`, `--media`, and `--artwork`
-checks.
+ดู `tests/README.md` สำหรับ flag เสริม `--audio`, `--media`, `--artwork`
 
-## Project layout
+## โครงสร้างโปรเจกต์
 
-| File | Purpose |
+| ไฟล์ | หน้าที่ |
 |---|---|
-| `MainWindow.xaml(.cs)` | The notch bar UI, reveal/hide animation, and input handling |
-| `MediaSessionService.cs` | SMTC integration (now playing, transport, seeking) |
-| `VolumeService.cs` | Per-app audio session volume/mute via NAudio |
-| `ToastWindow.xaml(.cs)` | The track-change toast popup |
-| `PlaybackTimeline.cs` | Estimates live playback position between SMTC updates |
-| `NativeMethods.cs` | Win32 interop (cursor position, tool-window styling) |
+| `MainWindow.xaml(.cs)` | UI แถบ notch, อนิเมชันแสดง/ซ่อน, จัดการ input |
+| `MediaSessionService.cs` | เชื่อมต่อ SMTC (now playing, ปุ่มควบคุม, seek) |
+| `VolumeService.cs` | ควบคุมระดับเสียง/mute เฉพาะแอปผ่าน NAudio |
+| `ToastWindow.xaml(.cs)` | popup toast เมื่อเปลี่ยนเพลง |
+| `PlaybackTimeline.cs` | ประมาณตำแหน่งการเล่นปัจจุบันระหว่างรอ SMTC อัปเดต |
+| `NativeMethods.cs` | Win32 interop (ตำแหน่งเคอร์เซอร์, สไตล์ tool window) |
