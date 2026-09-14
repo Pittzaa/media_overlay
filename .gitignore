@@ -4,6 +4,7 @@ obj/
 
 ## Published/packaged builds
 dist/
+dist-singlefile/
 *.zip
 
 ## User-specific / IDE

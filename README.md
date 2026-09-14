@@ -7,9 +7,16 @@
 
 ## ดาวน์โหลดแล้วรันได้เลย (ไม่ต้อง compile)
 
-โหลดไฟล์ [`TopMediaBar-win-x64.zip`](TopMediaBar-win-x64.zip) แตกไฟล์ แล้วรัน
-`TopMediaBar.exe` ได้ทันที — เป็น self-contained build ไม่ต้องติดตั้ง .NET เพิ่ม
-(ต้องใช้ Windows 10 1903+ หรือ Windows 11)
+มีให้เลือก 2 แบบ แตกไฟล์แล้วรัน `TopMediaBar.exe` ได้ทันที เป็น self-contained
+build ไม่ต้องติดตั้ง .NET เพิ่ม (ต้องใช้ Windows 10 1903+ หรือ Windows 11):
+
+- [`TopMediaBar-win-x64.zip`](TopMediaBar-win-x64.zip) — แบบหลายไฟล์ (exe + dll
+  แยกกัน) ตัวเลือกที่แนะนำ
+- [`TopMediaBar-win-x64-singlefile.zip`](TopMediaBar-win-x64-singlefile.zip) —
+  แบบไฟล์ .exe เดียว (มี dll เนทีฟของ WPF ติดมาแยกอีก 4 ไฟล์เล็ก ๆ เพราะ WPF
+  ฝังรวมเข้า exe เดียวไม่ได้) ตัว exe จะแตกไฟล์ตัวเองไปที่ `%TEMP%\.net\...`
+  ตอนรันครั้งแรก — ถ้าเครื่องมีนโยบาย Application Control ที่บล็อกการรันจาก temp
+  ไฟล์นี้จะเปิดไม่ติด ให้ใช้แบบหลายไฟล์ด้านบนแทน
 
 ## หลักการทำงาน
 
